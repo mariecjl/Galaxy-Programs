@@ -1,0 +1,123 @@
+from astropy.table import Table
+from astropy.io import fits
+import csv
+
+#id_list, ra_list, and dec_list are all for the fits file
+id_list=[]
+ra_list=[]
+dec_list=[]
+
+csv_file_path = 'Astro Data Catalogs/deconvolved.csv'  
+column_index_to_read1 = 1 # Index 1 corresponds to the second column (0-based index)
+column_index_to_read2 = 2
+column_index_to_read3 = 3
+
+fitspath = 'Astro Data Catalogs/LEGA-C.fits'
+
+try:
+    fitstable = Table.read(fitspath)
+
+    if len(fitstable) >= 1:
+        for i in range (0,len(fitstable)):
+            id_list.append(float(fitstable[i][1]))
+            ra_list.append(float(fitstable[i][4]))
+            dec_list.append(float(fitstable[i][5]))
+
+        #print (id_list)
+        #print ("")
+        #print (ra_list)
+        #print ("")
+        #print (dec_list)
+        #print ("")
+        #print (len(id_list))
+        # 0-based indexing
+      #[column][row]
+
+    else:
+        print("Error: The table does not have at least 10 rows.")
+
+except FileNotFoundError:
+    print(f"Error: The file '{fitspath}' was not found. Please provide the correct path.")
+except Exception as e:
+    print(f"An error occurred: {e}")
+
+#-----------------------------------------------------------------------
+def read_column_from_csv(file_path, column_index):
+    data_list = []
+
+    with open(file_path, 'r') as csvfile:
+        csv_reader = csv.reader(csvfile)
+
+        for row in csv_reader:
+            if len(row) > column_index:
+                if (row[column_index])!="id" and (row[column_index])!="ra" and (row[column_index])!="dec":
+                    data_list.append(float(row[column_index]))
+
+    return data_list
+
+#csvid, csvra, csvdec are for the CSV file
+csvid = read_column_from_csv(csv_file_path, column_index_to_read1)
+#csvid.remove ("id")
+
+csvra = read_column_from_csv(csv_file_path, column_index_to_read2)
+
+csvdec = read_column_from_csv(csv_file_path, column_index_to_read3)
+
+
+
+#print(csvdec)
+
+#print ("Max Fits ID:",max(id_list))
+#print ("Min Fits ID:",min(id_list))
+#print (len(id_list))
+
+#print ("Max CSV ID:",max(csvid))
+#print ("Min CSV ID:",min(csvid))
+#print (len(csvid))
+
+print (csvid[0])
+print ("These are the indices of the CSV IDs:")
+index1=(csvid.index(3945.0))
+print (index1)
+print (csvra[index1])
+print (csvdec[index1])
+#print (csvid.index(4121.0))
+#print (csvid.index(5882.0))
+#print (csvid.index(6057.0))
+#print (csvid.index(6311.0))
+
+index2=(id_list.index(260596.0))
+print (index2)
+print (ra_list[index2])
+print (dec_list[index2])
+
+samefitsid=[]
+samefitsra=[]
+samefitsdec=[]
+
+samecsvid=[]
+samecsvra=[]
+samecsvdec=[]
+
+for k in range (0,len(id_list)):
+  #(0,101) this will go from 0 and 100 (included)
+    if k%100==0:
+      print (k)
+    for l in range (0,len(csvid)):
+    #print (id_list[l])
+    #print (ra_list[l-1])
+        if (float(csvra[l])-0.0005)<=float(ra_list[k])<=(float(csvra[l])+0.0005):
+            if (float(csvdec[l])-0.0005)<=float(dec_list[k])<=(float(csvdec[l])+0.0005):
+                samefitsid.append(id_list[k])
+                samefitsra.append(ra_list[k])
+                samefitsdec.append(dec_list[k])
+
+                samecsvid.append(csvid[l])
+                samecsvra.append(csvra[l])
+                samecsvdec.append(csvdec[l])
+
+print (len(samecsvid))
+print (len(samefitsid))
+
+                #print ("Fits ID:",id_list[k]," CSV ID:",csvid[l]," Fits Ra:",ra_list[k]," Fits Dec:",dec_list[k], " CSV RA:",csvra[l]," CSV Dec:",csvdec[l])
+
